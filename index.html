@@ -15,9 +15,16 @@
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
 
+
+    const rectWidth = c.offsetWidth / 3.0,
+        rectHeight = c.offsetHeight,
+        rectY = 0,
+        rectX = c.offsetWidth / 2.0 - rectWidth / 2.0;
+
     document.addEventListener('keydown', function (e) {
         switch (e.keyCode) {
             case 37:
+            drawAll();
                 moveLeft();
                 break;
             case 39:
@@ -44,6 +51,43 @@
 
     function clearCanvas() {
         ctx.clearRect(0, 0, 800, 600);
+    }
+
+    function drawRoad() {
+        ctx.beginPath();
+        ctx.rect(rectX, rectY, rectWidth, rectHeight);
+        ctx.fillStyle = 'grey';
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawLines() {
+        var j = 0;
+        var y = 0;
+        for (var j = 1; y < c.height; j++) {
+
+            ctx.beginPath();
+            spacing = 2.5
+            w = 5;
+            h = 4 * w;
+            x = c.width * .50 - w / 2;
+            y = y + spacing * h;
+            ctx.rect(x, y, w, h);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + w, y);
+            ctx.lineTo(x + w + 1 / spacing, y + h);
+            ctx.lineTo(x - 1 / spacing, y + h);
+            ctx.lineTo(x, y);
+            ctx.closePath();
+            ctx.fillStyle = 'white';
+            ctx.fill();
+
+        }
+    }
+
+    function drawAll() {
+        drawRoad();
+        drawLines();
     }
 
 </script>
