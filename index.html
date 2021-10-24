@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Animacja 2 by Mateusz Bębenek</title>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="800" height="600" style="border:2px solid #d3d3d3;">
+    </canvas>
+</body>
+
+<script>
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    document.addEventListener('keydown', function (e) {
+        switch (e.keyCode) {
+            case 37:
+                moveLeft();
+                break;
+            case 39:
+                moveRight();
+                break;
+        }
+    });
+
+    function moveRight() {
+        if (rectX < rightBorder) {
+            rectX += 10;
+        } else {
+            return;
+        }
+    }
+
+    function moveLeft() {
+        if (rectX > leftBorder) {
+            rectX -= 10;
+        } else {
+            return;
+        }
+    }
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, 800, 600);
+    }
+
+</script>
+
+
+</html>
