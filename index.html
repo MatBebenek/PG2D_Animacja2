@@ -15,79 +15,237 @@
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
 
+    const leftRoadLineStart = c.clientWidth / 2 - 150,
+        rightRoadLineStart = c.clientWidth / 2 + 150,
+        rightRoadRightTurn = rightRoadLineStart + 150,
+        leftRoadRightTurn = leftRoadLineStart + 150
 
-    const rectWidth = c.offsetWidth / 3.0,
-        rectHeight = c.offsetHeight,
-        rectY = 0,
-        rectX = c.offsetWidth / 2.0 - rectWidth / 2.0;
+    const roadLinePositions = [{
+        xPos: rightRoadLineStart,
+        yPos: c.clientHeight
+    },
+    {
+        xPos: c.clientWidth / 2 + 150,
+        yPos: -1000
+    },
+    {
+        xPos: c.clientWidth / 2 + 300,
+        yPos: -2000
+    },
+    {
+        xPos: c.clientWidth / 2 + 300,
+        yPos: -3000
+    },
+    {
+        xPos: c.clientWidth / 2 + 150,
+        yPos: -4000
+    },
+    {
+        xPos: rightRoadLineStart,
+        yPos: -5000
+    },
+    {
+        xPos: rightRoadLineStart - 150,
+        yPos: -6000
+    },
+    {
+        xPos: rightRoadLineStart - 150,
+        yPos: -7000
+    },
+    {
+        xPos: rightRoadLineStart,
+        yPos: -8000
+    },
+    {
+        xPos: rightRoadLineStart,
+        yPos: -10000
+    },
+    {
+        xPos: leftRoadLineStart,
+        yPos: -10000
+    },
+    {
+        xPos: leftRoadLineStart,
+        yPos: -8000
+    },
+    {
+        xPos: leftRoadLineStart - 150,
+        yPos: -7000
+    },
+    {
+        xPos: leftRoadLineStart - 150,
+        yPos: -6000
+    },
+    {
+        xPos: leftRoadLineStart,
+        yPos: -5000
+    },
+    {
+        xPos: leftRoadLineStart,
+        yPos: -4000
+    },
+    {
+        xPos: leftRoadRightTurn,
+        yPos: -3000
+    },
+    {
+        xPos: leftRoadRightTurn,
+        yPos: -2000
+    },
+    {
+        xPos: leftRoadLineStart,
+        yPos: -1000
+    },
+    {
+        xPos: leftRoadLineStart,
+        yPos: c.clientHeight
+    }
+    ];
 
-    document.addEventListener('keydown', function (e) {
-        switch (e.keyCode) {
-            case 37:
-            drawAll();
-                moveLeft();
-                break;
-            case 39:
-                moveRight();
-                break;
-        }
-    });
+    const leftKey = 'ArrowLeft',
+        rightKey = 'ArrowRight';
 
-    function moveRight() {
-        if (rectX < rightBorder) {
-            rectX += 10;
-        } else {
-            return;
+    let shift = -300,
+        score = 0,
+        bestScore = 0,
+        moveLeft = false,
+        moveRight = false;
+
+    const roadWidth = c.offsetWidth / 2.0,
+        roadHeight = c.offsetHeight,
+        roadY = 0,
+        roadX = c.offsetWidth / 2.0 - roadWidth / 2.0;
+
+    document.onkeydown = (event) => { setDirection(event, true) };
+    document.onkeyup = (event) => { setDirection(event, false) };
+
+    function setDirection(event, down) {
+        if (event.key === leftKey && moveLeft !== down) {
+            moveLeft = down;
+        } else if (event.key === rightKey && moveRight !== down) {
+            moveRight = down;
         }
     }
 
-    function moveLeft() {
-        if (rectX > leftBorder) {
-            rectX -= 10;
-        } else {
-            return;
+    let car = {
+        xPos: c.clientWidth / 2 - 22,
+        yPos: 500,
+        width: 45,
+        length: 94,
+        shift: 5
+    }
+
+    function handleCar() {
+
+        if (moveRight && car.xPos < c.width - car.width - 10) {
+            car.xPos += car.shift;
+        } else if (moveLeft && car.xPos > 0) {
+            car.xPos -= car.shift;
         }
+        drawCar();
     }
 
     function clearCanvas() {
         ctx.clearRect(0, 0, 800, 600);
     }
 
-    function drawRoad() {
-        ctx.beginPath();
-        ctx.rect(rectX, rectY, rectWidth, rectHeight);
-        ctx.fillStyle = 'grey';
-        ctx.fill();
-        ctx.closePath();
+    function generateBackground() {
+        ctx.fillStyle = "green";
+        ctx.fillRect(0, 0, c.clientWidth, c.clientHeight);
     }
 
-    function drawLines() {
-        var j = 0;
-        var y = 0;
-        for (var j = 1; y < c.height; j++) {
+    function drawRoad() {
+        ctx.fillStyle = "#5B5C66";
+        ctx.beginPath();
+        ctx.moveTo(leftRoadLineStart, c.clientHeight - shift);
+        roadLinePositions.forEach((roadPoint) => {
+            if (shouldDraw(roadPoint.yPos - shift)) {
+                ctx.lineTo(roadPoint.xPos, roadPoint.yPos - shift);
+            }
+        });
+        ctx.fill();
+    }
 
-            ctx.beginPath();
-            spacing = 2.5
-            w = 5;
-            h = 4 * w;
-            x = c.width * .50 - w / 2;
-            y = y + spacing * h;
-            ctx.rect(x, y, w, h);
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + w, y);
-            ctx.lineTo(x + w + 1 / spacing, y + h);
-            ctx.lineTo(x - 1 / spacing, y + h);
-            ctx.lineTo(x, y);
-            ctx.closePath();
-            ctx.fillStyle = 'white';
-            ctx.fill();
+    function drawCar() {
+        var carImg = new Image();
+        if (moveLeft) {
+            carImg.src = 'carL.png';
+        } else if (moveRight) {
+            carImg.src = 'carR.png';
+        } else {
+            carImg.src = 'car.png';
+        }
 
+        ctx.drawImage(carImg, car.xPos, car.yPos);
+    }
+
+    function drawWhiteSideRoad() {
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 25;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        roadLinePositions.forEach((roadPoint) => {
+            if (shouldDraw(roadPoint.yPos - shift)) {
+                ctx.lineTo(roadPoint.xPos, roadPoint.yPos - shift);
+            }
+        })
+        ctx.stroke();
+    }
+
+    function drawRedSideRoad() {
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 25;
+        ctx.setLineDash([25]);
+        ctx.moveTo(leftRoadLineStart, c.clientHeight - shift);
+        roadLinePositions.forEach((roadPoint) => {
+            if (shouldDraw(roadPoint.yPos - shift));
+            ctx.lineTo(roadPoint.xPos, roadPoint.yPos - shift);
+        })
+        ctx.stroke();
+    }
+
+    function drawMiddleLine() {
+        ctx.beginPath();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 10;
+        ctx.setLineDash([25]);
+        ctx.moveTo(leftRoadLineStart, c.clientHeight - shift);
+        roadLinePositions.forEach((roadPoint) => {
+            if (roadLinePositions.indexOf(roadPoint) < roadLinePositions.length / 2 && shouldDraw(roadPoint.yPos - shift)) {
+                ctx.lineTo(roadPoint.xPos - 150, roadPoint.yPos - shift);
+            }
+        });
+        ctx.stroke();
+    }
+
+    function shouldDraw(yCord) {
+        return yCord > -2000;
+    }
+
+    function handleStep() {
+        if (shift < -9600) {
+            shift = 0;
+        } else {
+            shift -= 3;
         }
     }
+    function generateRoad() {
+        drawWhiteSideRoad();
+        drawRedSideRoad();
+        drawRoad();
+        drawMiddleLine();
+    }
+
+    window.requestAnimationFrame(drawAll);
 
     function drawAll() {
-        drawRoad();
-        drawLines();
+        generateBackground();
+        generateRoad();
+        handleCar();
+        handleStep();
+
+        window.requestAnimationFrame(drawAll);
     }
 
 </script>
